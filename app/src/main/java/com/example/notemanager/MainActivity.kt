@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -65,7 +67,7 @@ fun Square(componentSize: Dp = 200.dp) {
     }
     val infiniteScale = rememberInfiniteTransition()
     val animatedDotScale by infiniteScale.animateFloat(
-        initialValue = 20f,
+        initialValue = 0f,
         targetValue = canvasSizePx / 2,
         animationSpec = infiniteRepeatable(
             animation = tween(
@@ -75,20 +77,53 @@ fun Square(componentSize: Dp = 200.dp) {
             repeatMode = RepeatMode.Reverse
         )
     )
+
+    val animatedDotTranslate by infiniteScale.animateFloat(
+        initialValue = - canvasSizePx / 2,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1000,
+                easing = FastOutSlowInEasing
+            ),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    val animatedSquareRotate by infiniteScale.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 4000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        )
+    )
     Canvas(
         modifier = Modifier.size(200.dp)
     ) {
-        drawRect(
-            brush = Brush.linearGradient(
-                listOf(Purple200, Teal200)
+        withTransform(
+            {rotate(animatedSquareRotate)}
+        ){
+            drawRect(
+                brush = Brush.linearGradient(
+                    listOf(Purple200, Teal200)
+                )
             )
-        )
-        drawCircle(
-            color = Color.White,
-            center = Offset(
-                x = size.width / 2f,
-                y = size.height / 2f),
-            radius = animatedDotScale
-        )
+        }
+        withTransform(
+            { translate(left = animatedDotTranslate) }
+        ) {
+            drawCircle(
+                color = Color.White,
+                center = Offset(
+                    x = size.width / 2f,
+                    y = size.height / 2f
+                ),
+                radius = animatedDotScale
+            )
+        }
     }
 }
