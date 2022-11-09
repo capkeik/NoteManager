@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalDensity
@@ -77,53 +78,32 @@ fun Square(componentSize: Dp = 200.dp) {
             repeatMode = RepeatMode.Reverse
         )
     )
-
-    val animatedDotTranslate by infiniteScale.animateFloat(
-        initialValue = - canvasSizePx / 2,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 1000,
-                easing = FastOutSlowInEasing
-            ),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
-
-    val animatedSquareRotate by infiniteScale.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 4000,
-                easing = LinearEasing
-            ),
-            repeatMode = RepeatMode.Restart
-        )
-    )
     Canvas(
-        modifier = Modifier.size(200.dp)
+        modifier = Modifier.size(componentSize)
     ) {
-        withTransform(
-            {rotate(animatedSquareRotate)}
-        ){
-            drawRect(
-                brush = Brush.linearGradient(
-                    listOf(Purple200, Teal200)
-                )
-            )
-        }
-        withTransform(
-            { translate(left = animatedDotTranslate) }
-        ) {
-            drawCircle(
-                color = Color.White,
-                center = Offset(
-                    x = size.width / 2f,
-                    y = size.height / 2f
-                ),
-                radius = animatedDotScale
-            )
-        }
+        box()
+        pulsatingDot(dotScaleAnimation = animatedDotScale)
     }
+}
+
+fun DrawScope.box() {
+    drawRect(
+        brush = Brush.linearGradient(
+            listOf(Teal200, Purple200)
+        ),
+        topLeft = Offset(10f, 40f),
+        size = size
+    )
+}
+
+fun DrawScope.pulsatingDot(
+    dotScaleAnimation: Float
+) {
+    drawCircle(
+        color = Color.White,
+        center = Offset(
+            x = size.width / 2f,
+            size.height / 2f),
+        radius = size.width / 2f
+    )
 }
